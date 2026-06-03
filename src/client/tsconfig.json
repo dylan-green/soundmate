@@ -1,0 +1,30 @@
+{
+  // Client-only config. Placed inside src/client so Vite's esbuild reads the
+  // decorator options from here. Extends the root config and overrides the
+  // bits that differ for browser + Lit code.
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    // Browser environment instead of Node.
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    // spotify-web-playback-sdk provides the global `Spotify` namespace +
+    // window.onSpotifyWebPlaybackSDKReady types.
+    "types": ["vite/client", "spotify-web-playback-sdk"],
+
+    // Vite/esbuild resolve bare specifiers like "lit" — bundler mode lets us
+    // import without the .js extensions the server (NodeNext) requires.
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    // Lit decorators (@customElement, @state) use TypeScript's experimental
+    // decorators; reactive properties require useDefineForClassFields: false.
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+
+    "rootDir": ".",
+    "noEmit": true
+  },
+  "include": ["."],
+  // Override the parent's exclude (which lists src/client) so this config
+  // doesn't exclude its own files.
+  "exclude": []
+}
