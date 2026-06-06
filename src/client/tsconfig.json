@@ -20,10 +20,14 @@
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
 
-    "rootDir": ".",
+    // Widened to src/ so the shared ../common files (outside src/client) count
+    // as in-project. noEmit means rootDir only affects the "is this file under
+    // rootDir" check, not any output layout.
+    "rootDir": "..",
     "noEmit": true
   },
-  "include": ["."],
+  // Type-check the client AND the shared types it imports from ../common.
+  "include": [".", "../common"],
   // Override the parent's exclude (which lists src/client) so this config
   // doesn't exclude its own files.
   "exclude": []
