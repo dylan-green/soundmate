@@ -1,12 +1,12 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
-import { healthCheck } from './controllers/home.controller.js';
-import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
-import { sessionMiddleware } from './middleware/session.js';
-import authRouter from './routes/auth.routes.js';
-import loginRouter from './routes/login.routes.js';
-import meRouter from './routes/me.routes.js';
+import { healthCheck } from './app/controllers/home-controller.js';
+import { errorHandler, notFoundHandler } from './app/middleware/error-handler.js';
+import { sessionMiddleware } from './app/middleware/session.js';
+import authRouter from './app/routes/auth-routes.js';
+import loginRouter from './app/routes/login-routes.js';
+import meRouter from './app/routes/me-routes.js';
 
 const port = process.env.PORT;
 const app = express();
