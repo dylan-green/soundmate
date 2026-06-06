@@ -1,9 +1,13 @@
 import type {
   PagingObject,
   SpotifyArtist,
+  SpotifyFollowingResponse,
   SpotifyPlaylist,
   SpotifyPlaylistTrackItem,
+  SpotifySavedAlbum,
+  SpotifySavedTrack,
   SpotifyTrack,
+  SpotifyUser,
 } from '../../common/spotify.js';
 import type {
   PlaylistTracksResponse,
@@ -15,6 +19,7 @@ import type {
   TopTrack,
   TopTracksResponse,
 } from '../../common/top-items.js';
+import type { SavedAlbum } from '../../common/library.js';
 import type { TokenStore } from '../../common/auth.js';
 import { spotifyApiGet } from './spotify-api.js';
 
@@ -48,6 +53,20 @@ function mapTrack(track: SpotifyTrack): TopTrack {
   };
 }
 
+function mapSavedAlbum(saved: SpotifySavedAlbum): SavedAlbum {
+  const { album } = saved;
+  return {
+    id: album.id,
+    name: album.name,
+    artists: (album.artists ?? []).map((a) => a.name).join(', '),
+    imageUrl: album.images[0]?.url ?? null,
+    spotifyUrl: album.external_urls?.spotify ?? '',
+    uri: album.uri ?? `spotify:album:${album.id}`,
+    totalTracks: album.total_tracks ?? 0,
+    addedAt: saved.added_at,
+  };
+}
+
 function mapPlaylist(playlist: SpotifyPlaylist): TopPlaylist {
   return {
     id: playlist.id,
@@ -73,11 +92,22 @@ type PlaylistTracksArgs = {
   store: TokenStore;
 }
 
+// Library fetches (followed artists, saved albums/tracks) take only a limit —
+// no time range applies.
+type LibraryFetchArgs = {
+  limit: number;
+  store: TokenStore;
+};
+
 export interface SpotifyApiService {
   getTopTracks: (args: SpotifyApiOptions) => Promise<TopTracksResponse>;
   getTopArtists: (args: SpotifyApiOptions) => Promise<TopArtistsResponse>;
   getTopPlaylists: (args: SpotifyApiOptions) => Promise<TopPlaylistsResponse>;
   getPlaylistTracks: (args: PlaylistTracksArgs) => Promise<PlaylistTracksResponse>;
+  getCurrentUser: (store: TokenStore) => Promise<SpotifyUser>;
+  getFollowedArtists: (args: LibraryFetchArgs) => Promise<TopArtist[]>;
+  getSavedAlbums: (args: LibraryFetchArgs) => Promise<SavedAlbum[]>;
+  getSavedTracks: (args: LibraryFetchArgs) => Promise<TopTrack[]>;
 }
 
 export const createSpotifyApiService = (): SpotifyApiService => {
@@ -154,10 +184,59 @@ export const createSpotifyApiService = (): SpotifyApiService => {
     };
   }
 
+  async function getCurrentUser(store: TokenStore): Promise<SpotifyUser> {
+    return spotifyApiGet<SpotifyUser>('/me', store);
+  }
+
+  async function getFollowedArtists(args: LibraryFetchArgs): Promise<TopArtist[]> {
+    const { limit, store: tokenStore } = args;
+    // type=artist is required; pagination is by cursor (`after`), but a single
+    // page up to the limit is enough for the library view.
+    const query = new URLSearchParams({
+      type: 'artist',
+      limit: String(limit),
+    });
+    const response = await spotifyApiGet<SpotifyFollowingResponse>(
+      `/me/following?${query.toString()}`,
+      tokenStore,
+    );
+    // Note the `artists` wrapper — unlike the other list endpoints.
+    return response.artists.items.map(mapArtist);
+  }
+
+  async function getSavedAlbums(args: LibraryFetchArgs): Promise<SavedAlbum[]> {
+    const { limit, store: tokenStore } = args;
+    const query = new URLSearchParams({ limit: String(limit) });
+    const page = await spotifyApiGet<PagingObject<SpotifySavedAlbum>>(
+      `/me/albums?${query.toString()}`,
+      tokenStore,
+    );
+    return page.items
+      .filter((entry): entry is SpotifySavedAlbum => entry?.album != null)
+      .map(mapSavedAlbum);
+  }
+
+  async function getSavedTracks(args: LibraryFetchArgs): Promise<TopTrack[]> {
+    const { limit, store: tokenStore } = args;
+    const query = new URLSearchParams({ limit: String(limit) });
+    const page = await spotifyApiGet<PagingObject<SpotifySavedTrack>>(
+      `/me/tracks?${query.toString()}`,
+      tokenStore,
+    );
+    return page.items
+      .map((entry) => entry?.track ?? null)
+      .filter((track): track is SpotifyTrack => track != null)
+      .map(mapTrack);
+  }
+
   return {
     getTopTracks,
     getTopArtists,
     getTopPlaylists,
     getPlaylistTracks,
+    getCurrentUser,
+    getFollowedArtists,
+    getSavedAlbums,
+    getSavedTracks,
   };
 }
