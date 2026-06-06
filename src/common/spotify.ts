@@ -32,6 +32,13 @@ export interface SpotifyAlbum {
   id: string;
   name: string;
   images: SpotifyImage[];
+  // Present on full album objects (e.g. saved albums); omitted on the simplified
+  // album nested in a track.
+  artists?: SpotifySimplifiedArtist[];
+  external_urls?: ExternalUrls;
+  uri?: string;
+  total_tracks?: number;
+  release_date?: string;
 }
 
 export interface SpotifyTrack {
@@ -96,4 +103,40 @@ export interface PagingObject<T> {
   previous: string | null;
   total: number;
   items: T[];
+}
+
+/** The authenticated user as returned by GET /me. */
+export interface SpotifyUser {
+  id: string;
+  display_name: string | null;
+}
+
+/** One entry in GET /me/albums — a saved album plus when it was added. */
+export interface SpotifySavedAlbum {
+  added_at: string;
+  album: SpotifyAlbum;
+}
+
+/** One entry in GET /me/tracks — a saved track plus when it was added. */
+export interface SpotifySavedTrack {
+  added_at: string;
+  track: SpotifyTrack;
+}
+
+/**
+ * Cursor-paged object — GET /me/following is the one endpoint that paginates by
+ * cursor (`after`) rather than offset.
+ */
+export interface CursorPagingObject<T> {
+  href: string;
+  limit: number;
+  next: string | null;
+  total: number;
+  cursors: { after: string | null; before?: string | null };
+  items: T[];
+}
+
+/** GET /me/following nests its cursor-paged artists under an `artists` wrapper. */
+export interface SpotifyFollowingResponse {
+  artists: CursorPagingObject<SpotifyArtist>;
 }

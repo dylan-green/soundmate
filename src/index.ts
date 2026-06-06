@@ -6,7 +6,7 @@ import { errorHandler, notFoundHandler } from './app/middleware/error-handler.js
 import { sessionMiddleware } from './app/middleware/session.js';
 import authRouter from './app/routes/auth-routes.js';
 import loginRouter from './app/routes/login-routes.js';
-import meRouter from './app/routes/me-routes.js';
+import router from './app/routes/routes.js';
 
 const port = process.env.PORT;
 const app = express();
@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(sessionMiddleware);
 
 app.use('/login', loginRouter);
-app.use('/me', meRouter);
+app.use('/me', router);
 app.use('/auth', authRouter);
 
 // Health check

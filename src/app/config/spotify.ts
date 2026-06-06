@@ -25,6 +25,9 @@ export const spotifyConfig = {
   // streaming + user-read-email/private    → Web Playback SDK player
   // user-modify-playback-state             → start playback on the device
   // playlist-read-private                   → GET /me/playlists (user's playlists)
+  // user-follow-read                        → GET /me/following (followed artists)
+  // user-library-read                       → GET /me/albums + /me/tracks (saved library)
+  // NOTE: adding scopes requires existing users to log in again to re-consent.
   scopes: [
     'user-top-read',
     'streaming',
@@ -32,6 +35,8 @@ export const spotifyConfig = {
     'user-read-private',
     'user-modify-playback-state',
     'playlist-read-private',
+    'user-follow-read',
+    'user-library-read',
   ] as readonly string[],
 
   accountsBaseUrl: 'https://accounts.spotify.com',
