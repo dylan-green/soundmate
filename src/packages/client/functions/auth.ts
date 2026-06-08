@@ -1,5 +1,6 @@
 import { getLoginStatus } from './get-login-status';
-import { NotAuthorizedError, getUserToken } from './get-user-token';
+import { getUserToken } from './get-user-token';
+import { NotAuthorizedError } from './errors';
 import { dispatch } from '../redux/dispatch/dispatch';
 import { store } from '../redux/store';
 import {

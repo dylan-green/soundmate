@@ -1,6 +1,6 @@
 import type { PlaylistTracksResponse } from '@soundmate/common/top-items';
 import { apiFetch } from './api';
-import { NotAuthorizedError } from './get-top-items';
+import { NotAuthorizedError } from './errors';
 
 /** Fetch the tracks inside one playlist (GET /me/playlists/:id/tracks). */
 export async function getPlaylistTracks(

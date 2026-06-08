@@ -3,7 +3,7 @@ import { apiFetch } from '../../functions/api';
 import { store } from '../../redux/store';
 import { dispatch } from '../../redux/dispatch/dispatch';
 import { selectTracks } from '../../redux/selectors/tracks';
-import { NotAuthorizedError } from '../../functions/get-user-token';
+import { NotAuthorizedError } from '../../functions/errors';
 
 /**
  * The Web Playback SDK device id, published by <soundmate-player> when it

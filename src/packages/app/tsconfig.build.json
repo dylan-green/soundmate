@@ -1,13 +1,13 @@
 {
   // Emit config — used by `pnpm build` (tsc -p tsconfig.build.json). Clears the
   // source `paths` so @soundmate/common resolves to its built package (./dist via
-  // the exports map; build:app builds common first), which keeps rootDir clean
-  // and the output layout flat under dist/app. Tests are excluded from output.
+  // the exports map; the app build compiles common first), which keeps rootDir clean.
+  // Emits to the package's own ./dist (like @soundmate/common). Tests excluded.
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
     "rootDir": ".",
-    "outDir": "../../../dist/app",
+    "outDir": "./dist",
     "paths": {}
   },
   "exclude": ["node_modules", "dist", "**/*.test.ts"]

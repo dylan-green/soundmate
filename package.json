@@ -6,13 +6,10 @@
   "private": true,
   "packageManager": "pnpm@9.15.9",
   "engines": {
-    "node": ">=24"
+    "node": "^24.8"
   },
   "scripts": {
     "dev": "pnpm --parallel --filter @soundmate/app --filter @soundmate/client dev",
-    "build": "pnpm -r build",
-    "build:app": "pnpm --filter @soundmate/common build && pnpm --filter @soundmate/app build",
-    "build:client": "pnpm --filter @soundmate/common build && pnpm --filter @soundmate/client build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "clean": "pnpm -r clean && rm -rf dist"

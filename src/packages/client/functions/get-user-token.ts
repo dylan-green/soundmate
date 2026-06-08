@@ -1,8 +1,6 @@
 import type { UserTokenResponse } from '@soundmate/common/auth';
 import { apiFetch } from './api';
-
-/** Thrown when the user isn't logged in (no valid session). */
-export class NotAuthorizedError extends Error { }
+import { NotAuthorizedError } from './errors';
 
 /**
  * Get a valid Spotify access token for use in the browser — e.g. the Web

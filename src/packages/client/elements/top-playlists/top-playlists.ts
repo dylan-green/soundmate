@@ -1,7 +1,7 @@
 import { LitElement, html, nothing } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { customElement, state, property } from 'lit/decorators.js';
-import { NotAuthorizedError } from '../../functions/get-top-items';
+import { NotAuthorizedError } from '../../functions/errors';
 import { getPlaylistTracks } from '../../functions/get-playlist-tracks';
 import { playTrackAt, togglePlayback } from '../soundmate-player/functions';
 import { playIcon, pauseIcon } from '../../icons';

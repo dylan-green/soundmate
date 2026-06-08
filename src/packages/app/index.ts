@@ -1,6 +1,6 @@
 import cors from 'cors';
 import express from 'express';
-import { healthCheck } from './controllers/home-controller.js';
+import { healthCheck } from './controllers/health-controller.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { securityHeaders } from './middleware/security-headers.js';
 import { createSessionMiddleware } from './middleware/session.js';

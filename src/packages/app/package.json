@@ -5,15 +5,15 @@
   "type": "module",
   "private": true,
   "packageManager": "pnpm@9.15.9",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "dev": "tsx watch --env-file=.env --inspect-brk index.ts",
-    "build": "pnpm clean && tsc -p tsconfig.build.json && pnpm link:runtime-deps",
-    "link:runtime-deps": "ln -sfn ../src/packages/app/node_modules ../../../dist/node_modules",
+    "dev": "tsx watch --env-file=.env --inspect index.ts",
     "typecheck": "tsc --noEmit",
-    "start": "node ../../../dist/app/index.js",
-    "start:local": "node --env-file=.env ../../../dist/app/index.js",
     "test": "tsx --test \"**/*.test.ts\"",
-    "clean": "rm -rf ../../../dist/app"
+    "clean": "rm -rf dist"
   },
   "keywords": [],
   "author": "",

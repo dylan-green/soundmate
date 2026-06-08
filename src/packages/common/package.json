@@ -3,21 +3,13 @@
   "version": "1.0.0",
   "description": "Shared types for the soundmate app + client",
   "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "import": "./dist/*.js"
-    }
-  },
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "exports": {},
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "pnpm clean && tsc",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },

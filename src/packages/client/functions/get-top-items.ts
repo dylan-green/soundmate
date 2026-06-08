@@ -1,8 +1,6 @@
 import type { TopItemsResponse } from "@soundmate/common/top-items";
 import { apiFetch } from './api';
-
-/** Thrown when the user isn't logged in or hasn't granted the needed scope. */
-export class NotAuthorizedError extends Error { }
+import { NotAuthorizedError } from './errors';
 
 export async function getTopItems(
   type: 'artists' | 'tracks' | 'playlists',

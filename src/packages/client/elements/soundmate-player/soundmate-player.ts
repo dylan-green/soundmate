@@ -1,6 +1,6 @@
 import { LitElement, html, nothing } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-import { NotAuthorizedError } from '../../functions/get-user-token';
+import { NotAuthorizedError } from '../../functions/errors';
 import { getCachedAccessToken } from '../../functions/auth';
 import {
   playNext,
