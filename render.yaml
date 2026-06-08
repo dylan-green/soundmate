@@ -15,10 +15,7 @@ services:
     runtime: node
     plan: starter
     rootDir: .
-    # --prod=false ensures devDependencies (typescript, @types/node, @types/*)
-    # install even though NODE_ENV=production is set below — without it the build
-    # fails with `TS2688: Cannot find type definition file for 'node'`.
-    buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false && pnpm build:app
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm build:app
     startCommand: pnpm --filter @soundmate/app start
     healthCheckPath: /health
     autoDeploy: true
