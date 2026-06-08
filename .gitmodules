@@ -1,0 +1,3 @@
+[submodule "soundmate"]
+	path = soundmate
+	url = git@github.com:dylan-green/soundmate.git
