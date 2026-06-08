@@ -1,0 +1,17 @@
+{
+  // Typecheck + dev config. `paths` resolve @soundmate/common from its TypeScript
+  // source so `pnpm typecheck` and `tsx` (dev) need no prior common build. Emit
+  // is done by tsconfig.build.json, which resolves common via its built package
+  // instead (keeping rootDir clean). noEmit here avoids the rootDir conflict that
+  // pulling the source into an emitting program would cause.
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "paths": {
+      "@soundmate/common": ["../common/index.ts"],
+      "@soundmate/common/*": ["../common/*.ts"]
+    }
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "dist"]
+}
