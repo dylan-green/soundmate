@@ -1,8 +1,16 @@
+.DS_Store
 # dependencies
 node_modules/
 # build
 dist/
 tsconfig.tsbuildinfo
+#redis artifacts
+dump.rdb
 # environment
 .env
 .env.*
+# ...but keep the committed templates
+!.env.example
+!**/.env.example
+# AI bullshit
+.claude
