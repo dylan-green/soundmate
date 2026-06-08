@@ -1,0 +1,32 @@
+{
+  // Browser client (Lit + Vite). Type-checking only — Vite/esbuild does the
+  // actual transpile and bundling. Overrides the base with the DOM environment,
+  // bundler resolution, and the decorator settings Lit needs.
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    // Browser environment instead of Node.
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "spotify-web-playback-sdk"],
+
+    // Vite/esbuild resolve bare specifiers; bundler mode lets us import without
+    // the .js extensions the server (NodeNext) requires.
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    // Lit decorators (@customElement, @state) use experimental decorators;
+    // reactive properties require useDefineForClassFields: false.
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+
+    // Resolve @soundmate/common from its TypeScript source (Vite aliases the
+    // same in vite.config.ts so dev/build need no prior common build).
+    "paths": {
+      "@soundmate/common": ["../common/index.ts"],
+      "@soundmate/common/*": ["../common/*.ts"]
+    },
+
+    "noEmit": true
+  },
+  "include": ["."],
+  "exclude": ["node_modules"]
+}
