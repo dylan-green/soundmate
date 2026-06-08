@@ -13,6 +13,7 @@
     "dist"
   ],
   "scripts": {
+    "heroku-postbuild": "sh ../../scripts/build-app.sh",
     "dev": "tsx watch --env-file=.env --inspect index.ts",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test \"**/*.test.ts\"",
