@@ -1,0 +1,62 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+#
+# Deploys the @soundmate/app backend from the *workspace root* (NOT the package
+# subfolder). Building one package from the repo root is required because:
+#   - typescript / @types/node are root devDependencies (pnpm-hoisted), and
+#   - @soundmate/app depends on @soundmate/common via `workspace:*`.
+# The `pnpm build:app` script builds common first, then the app → dist/app.
+#
+# Node version comes from the repo-root `.node-version` (24.8.0), honored
+# automatically because rootDir is the repo root.
+
+services:
+  - type: web
+    name: soundmate-app
+    runtime: node
+    plan: starter
+    rootDir: .
+    # --prod=false ensures devDependencies (typescript, @types/node, @types/*)
+    # install even though NODE_ENV=production is set below — without it the build
+    # fails with `TS2688: Cannot find type definition file for 'node'`.
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false && pnpm build:app
+    startCommand: pnpm --filter @soundmate/app start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # Drives prod cookie behavior (SameSite=None; Secure) + `trust proxy`.
+      - key: NODE_ENV
+        value: production
+
+      # --- Spotify app credentials (enter in the Render dashboard) ---
+      - key: SPOTIFY_CLIENT_ID
+        sync: false
+      - key: SPOTIFY_CLIENT_SECRET
+        sync: false
+      # Must be HTTPS in prod and match a Redirect URI registered in the Spotify
+      # dashboard, e.g. https://soundmate-app.onrender.com/login/callback
+      - key: SPOTIFY_REDIRECT_URI
+        sync: false
+
+      # Signs the session cookie. Generated once by Render and kept stable.
+      - key: SESSION_SECRET
+        generateValue: true
+
+      # Post-login redirect target AND the allowed CORS origin — must be the
+      # exact client origin (the static site URL). The two must be identical.
+      - key: CLIENT_BASE_URL
+        sync: false
+
+      # Wired from the managed Key Value (Redis) instance below.
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: soundmate-redis
+          property: connectionString
+
+# Managed Redis (Render "Key Value") — backs express-session via connect-redis
+# and the library repository. Internal-only (no public IP allow list).
+  - type: keyvalue
+    name: soundmate-redis
+    plan: starter
+    ipAllowList: []
+    maxmemoryPolicy: noeviction
