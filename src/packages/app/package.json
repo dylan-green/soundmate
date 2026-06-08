@@ -6,7 +6,7 @@
   "private": true,
   "packageManager": "pnpm@9.15.9",
   "scripts": {
-    "dev": "tsx watch --env-file=.env index.ts",
+    "dev": "tsx watch --env-file=.env --inspect-brk index.ts",
     "build": "pnpm clean && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "start": "node ../../../dist/app/index.js",
