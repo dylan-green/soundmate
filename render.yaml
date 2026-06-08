@@ -50,6 +50,55 @@ services:
           name: soundmate-redis
           property: connectionString
 
+  # ---------------------------------------------------------------------------
+  # Static client (Lit + Vite). Built from the workspace root so @soundmate/common
+  # builds first (`pnpm build:client`). Vite bundles everything into static assets,
+  # so there is NO runtime node_modules — the app's dist/node_modules symlink trick
+  # is not needed (and not wanted) here.
+  - type: web
+    name: soundmate-client
+    runtime: static
+    rootDir: .
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm build:client
+    staticPublishPath: ./dist/client
+    autoDeploy: true
+    # SPA fallback so client-side routes / deep links resolve to the app shell.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      # CSP must be set HERE (the app's security-headers middleware only covers API
+      # responses now). Uncomment and replace <API-ORIGIN> with VITE_API_BASE_URL.
+      # The directives below permit the Spotify Web Playback SDK + album art.
+      # - path: /*
+      #   name: Content-Security-Policy
+      #   value: >-
+      #     default-src 'self';
+      #     script-src 'self' https://sdk.scdn.co;
+      #     style-src 'self' 'unsafe-inline';
+      #     img-src 'self' data: https://*.scdn.co https://*.spotifycdn.com;
+      #     connect-src 'self' <API-ORIGIN> https://api.spotify.com https://*.spotify.com wss://*.spotify.com;
+      #     frame-src https://sdk.scdn.co;
+      #     base-uri 'self';
+      #     frame-ancestors 'none'
+    envVars:
+      # Baked in at BUILD time (Vite inlines import.meta.env). Set this to the API
+      # origin — the soundmate-app URL, e.g. https://soundmate-app.onrender.com.
+      # The app's CLIENT_BASE_URL must equal THIS site's URL (it is both the
+      # post-login redirect target and the allowed CORS origin).
+      - key: VITE_API_BASE_URL
+        sync: false
+
 # Managed Redis (Render "Key Value") — backs express-session via connect-redis
 # and the library repository. Internal-only (no public IP allow list).
   - type: keyvalue
