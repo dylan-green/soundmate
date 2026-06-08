@@ -1,5 +1,6 @@
 import { LitElement, html, nothing } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import { apiUrl } from '../../functions/api';
 import { isUserAuthenticated } from '../../redux/selectors/auth';
 import { StoreController } from '../../store/connect';
 import { styles } from './soundmate-app-css';
@@ -29,7 +30,7 @@ export class SoundmateApp extends LitElement {
       <p class="sub">Find your Spotify soundmate.</p>
       ${this.#auth.value
         ? nothing
-        : html`<a class="btn" href="/login">Log in with Spotify</a>`}
+        : html`<a class="btn" href=${apiUrl('/login')}>Log in with Spotify</a>`}
       <login-status></login-status>
       <soundmate-player></soundmate-player>
       <sync-gate>
