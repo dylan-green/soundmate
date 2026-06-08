@@ -10,6 +10,8 @@
   },
   "scripts": {
     "dev": "pnpm --parallel --filter @soundmate/app --filter @soundmate/client dev",
+    "build:app": "sh scripts/build-app.sh",
+    "build:client": "pnpm --filter @soundmate/client exec vite build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "clean": "pnpm -r clean && rm -rf dist"
