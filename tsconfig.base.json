@@ -1,0 +1,31 @@
+{
+  // Shared compiler options every package extends. Each package's own
+  // tsconfig.json sets rootDir / outDir / include / exclude and overrides the
+  // bits that differ (the client swaps in DOM + bundler resolution).
+  "compilerOptions": {
+    // Environment Settings
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "esnext",
+    "types": ["node"],
+
+    // Emitted outputs (packages that emit get .d.ts + maps; client sets noEmit)
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Stricter Typechecking
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // Recommended
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  }
+}

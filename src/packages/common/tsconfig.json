@@ -1,0 +1,11 @@
+{
+  // Shared types package. Emits .js + .d.ts to ./dist; both the app (NodeNext)
+  // and the client (bundler) consume it as @soundmate/common via workspace:*.
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./dist"
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "dist"]
+}
