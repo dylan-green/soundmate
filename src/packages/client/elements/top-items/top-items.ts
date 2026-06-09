@@ -60,6 +60,7 @@ export class TopItems extends LitElement {
 
   override render() {
     return html`
+    <div class="tabs-container">
       <div class="tabs">
         ${TABS.map(
       (tab) => html`
@@ -72,6 +73,7 @@ export class TopItems extends LitElement {
           `,
     )}
       </div>
+    </div>
 
       ${this.visited.has('tracks')
         ? html`<top-tracks ?hidden=${this.type !== 'tracks'}></top-tracks>`

@@ -33,6 +33,7 @@ export default defineConfig({
       '/login': API_TARGET,
       '/me': API_TARGET,
       '/auth': API_TARGET,
+      '/session': API_TARGET,
       '/health': API_TARGET,
     },
   },

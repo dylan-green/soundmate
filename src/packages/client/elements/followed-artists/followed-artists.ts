@@ -4,6 +4,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { StoreController } from '../../store/connect';
 import type { TopArtist } from '@soundmate/common/top-items';
 import { styles } from './followed-artists-css';
+import { topListStyles } from '../common/top-list-css';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -17,7 +18,7 @@ declare global {
  */
 @customElement('followed-artists')
 export class FollowedArtists extends LitElement {
-  static override styles = [styles];
+  static override styles = [styles, topListStyles];
 
   @property({ type: Boolean, reflect: true }) override hidden = false;
 
@@ -32,8 +33,9 @@ export class FollowedArtists extends LitElement {
       ${repeat(
       items,
       (item) => item.id,
-      (item) => html`
+      (item, index) => html`
           <li>
+            <span class="rank">${index + 1}</span>
             ${item.imageUrl ? html`<img src=${item.imageUrl} alt="" />` : nothing}
             <span>
               <a href=${item.spotifyUrl} target="_blank" rel="noreferrer"

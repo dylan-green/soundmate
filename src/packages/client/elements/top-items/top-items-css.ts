@@ -8,6 +8,10 @@ export const styles = css`
     align-self: stretch;
   }
 
+  .tabs-container {
+    overflow-x: scroll;
+  }
+
   .tabs {
     display: flex;
     min-width: max-content;
