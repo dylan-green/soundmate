@@ -19,7 +19,6 @@ export interface StoredTokens {
 export interface TokenStore {
   get(): Promise<StoredTokens | null>;
   set(tokens: StoredTokens): Promise<void>;
-  clear(): Promise<void>;
 }
 
 /**

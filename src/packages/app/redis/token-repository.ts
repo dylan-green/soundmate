@@ -28,9 +28,3 @@ export async function setTokens(userId: string, tokens: StoredTokens): Promise<v
   const redis = await getRedis();
   await redis.set(tokensKey(userId), JSON.stringify(tokens), { EX: TTL_SECONDS });
 }
-
-/** Delete a user's tokens (per-member logout). */
-export async function clearTokens(userId: string): Promise<void> {
-  const redis = await getRedis();
-  await redis.del(tokensKey(userId));
-}

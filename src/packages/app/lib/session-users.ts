@@ -76,32 +76,3 @@ export function addSessionUser(req: Request, userId: string): void {
   req.session.activeUserId = userId;
   req.session.ownerUserId = userId;
 }
-
-/**
- * Remove a member from the roster. Returns whether they were present. If the
- * removed member was active, the active member falls back to the first remaining
- * one (or undefined when the roster is now empty). If the removed member was the
- * owner, the owner is cleared — a re-login is required before /auth/token will
- * release a token again (we never promote a member this browser didn't authID as).
- */
-export function removeSessionUser(req: Request, userId: string): boolean {
-  const users = sessionUsers(req);
-  const idx = users.indexOf(userId);
-  if (idx === -1) {
-    return false;
-  }
-  users.splice(idx, 1);
-  req.session.users = users;
-  if (req.session.activeUserId === userId) {
-    const next = users[0];
-    if (next === undefined) {
-      delete req.session.activeUserId; // roster now empty
-    } else {
-      req.session.activeUserId = next;
-    }
-  }
-  if (req.session.ownerUserId === userId) {
-    delete req.session.ownerUserId;
-  }
-  return true;
-}

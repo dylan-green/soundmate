@@ -1,5 +1,5 @@
 import type { StoredTokens, TokenStore } from '@soundmate/common/auth';
-import { clearTokens, getTokens, setTokens } from '../redis/token-repository.js';
+import { getTokens, setTokens } from '../redis/token-repository.js';
 
 /**
  * A TokenStore backed by Redis, keyed by Spotify user id. This is what the
@@ -11,7 +11,6 @@ export function userTokenStore(userId: string): TokenStore {
   return {
     get: () => getTokens(userId),
     set: (tokens) => setTokens(userId, tokens),
-    clear: () => clearTokens(userId),
   };
 }
 
@@ -26,9 +25,6 @@ export function memoryTokenStore(initial: StoredTokens): TokenStore {
     get: async () => tokens,
     set: async (next) => {
       tokens = next;
-    },
-    clear: async () => {
-      tokens = null;
     },
   };
 }

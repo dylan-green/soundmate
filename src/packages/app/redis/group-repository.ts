@@ -30,9 +30,3 @@ export async function getGroupMembers(groupId: string): Promise<string[]> {
   const redis = await getRedis();
   return redis.sMembers(membersKey(groupId));
 }
-
-/** Remove a member from the group. */
-export async function removeGroupMember(groupId: string, userId: string): Promise<void> {
-  const redis = await getRedis();
-  await redis.sRem(membersKey(groupId), userId);
-}
