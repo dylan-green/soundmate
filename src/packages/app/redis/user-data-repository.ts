@@ -7,6 +7,7 @@ import {
 } from '@soundmate/common/library';
 import type { TopArtist, TopPlaylist, TopTrack } from '@soundmate/common/top-items';
 import { getRedis } from './redis-client.js';
+import { userNamespace } from './user-keys.js';
 
 /**
  * Repository for per-user library data in Redis. Owns the key shapes and TTL;
@@ -29,9 +30,9 @@ export interface CategoryData {
 }
 
 const categoryKey = (userId: string, category: LibraryCategory): string =>
-  `user:${userId}:library:${category}`;
+  `${userNamespace(userId)}:library:${category}`;
 
-const statusKey = (userId: string): string => `user:${userId}:sync:status`;
+const statusKey = (userId: string): string => `${userNamespace(userId)}:sync:status`;
 
 /** Persist one category's normalized list (overwrites; refreshes the TTL). */
 export async function setCategory<C extends LibraryCategory>(
