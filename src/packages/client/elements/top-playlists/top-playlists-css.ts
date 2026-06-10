@@ -25,17 +25,15 @@ const playlistStyles = css`
     display: block;
     padding: 0;
   }
+
   ol.nested {
     margin: 0 0 0.5rem 2.25rem;
-    padding-left: 0.75rem;
     border-left: 2px solid #eee;
-  }
-  ol.nested .rank {
-    width: 1.5rem;
-  }
-  ol.nested img {
-    width: 36px;
-    height: 36px;
+    /* The shared 'ol' rule sets width: 100%; combined with this 2.25rem left
+       margin it overflows the row — most visible on mobile, where it shoved the
+       nested rows past the viewport and knocked their columns/subtitles out of
+       alignment. Size the nested list to the remaining width instead. */
+    width: auto;
   }
 `;
 

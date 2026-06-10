@@ -7,7 +7,7 @@ export const styles = css`
     max-width: 90vw;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
+    flex-direction: column;'
   }
 
   h1 {

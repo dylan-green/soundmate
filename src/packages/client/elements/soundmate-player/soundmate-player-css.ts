@@ -3,10 +3,12 @@ import { css } from 'lit';
 export const styles = css`
   :host {
     position: fixed;
-    bottom: 0;
-    width: 65%;
-    background: rgb(238, 238, 238, 0.95);
+    bottom: 0px;
+    width: 70vw;
+    background: rgba(238, 238, 238, 0.95);
     border-radius: 8px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .player {

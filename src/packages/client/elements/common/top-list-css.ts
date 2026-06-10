@@ -36,14 +36,19 @@ export const topListStyles = css`
   }
 
   /* The title/subtitle column. min-width: 0 lets it shrink below its content so
-     long titles wrap (and the play button stays put) instead of widening the row. */
+     long titles/subtitles truncate (and the play button stays put) instead of
+     widening the row. */
   li > span:not(.rank) {
     min-width: 0;
-    overflow-wrap: anywhere;
   }
 
+  /* flex: none on the fixed-width columns (rank + art) so they NEVER shrink — only
+     the title/subtitle column (min-width: 0) absorbs overflow via truncation.
+     Without this, a long title squeezes the rank/art by a content-dependent amount,
+     so each row's title column lands at a different x and the list looks ragged. */
   .rank {
     width: 1.5rem;
+    flex: none;
     color: #999;
     text-align: right;
   }
@@ -51,6 +56,7 @@ export const topListStyles = css`
   img {
     width: 48px;
     height: 48px;
+    flex: none;
     border-radius: 0.25rem;
     object-fit: cover;
     background: #eee;
@@ -60,6 +66,13 @@ export const topListStyles = css`
     color: inherit;
     text-decoration: none;
     font-weight: 600;
+    /* Truncate a long title to a single line (matches .sub), so every row stays
+       one title + one subtitle tall and the play button never shifts. display:
+       block gives text-overflow a block box to ellipsis against. */
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   a:hover {
@@ -70,8 +83,13 @@ export const topListStyles = css`
     color: #666;
     font-size: 0.85rem;
     line-height: 1.2;
-    /* Reserve a line even when the subtitle is empty, so rows stay aligned. */
     min-height: 1.2em;
+    /* Keep the subtitle on a single line — truncate with an ellipsis instead of
+       wrapping (which on narrow/mobile widths pushed the row to two lines). The
+       parent column's min-width: 0 supplies the width to truncate against. */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .play {
