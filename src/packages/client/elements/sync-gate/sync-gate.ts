@@ -1,6 +1,6 @@
 import { LitElement, html, nothing } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-import { getLoginStatus } from '../../functions/get-login-status';
+import { getSession } from '../../functions/session';
 import { getLibrary, getSyncStatus, startSync } from '../../functions/sync';
 import { dispatch } from '../../redux/dispatch/dispatch';
 import { LIBRARY_CATEGORIES, type SyncStatus } from '@soundmate/common/library';
@@ -28,7 +28,11 @@ export class SyncGate extends LitElement {
   static override styles = [styles];
 
   @state() private phase: Phase = 'checking';
+  /** The active member's status — drives the "n/6 loaded" label. */
   @state() private status: SyncStatus | null = null;
+
+  /** The member whose library this gate loads into the store. */
+  private activeUserId: string | null = null;
 
   /** Pending poll timer, cleared on disconnect. */
   #pollTimer: ReturnType<typeof setTimeout> | undefined;
@@ -48,11 +52,12 @@ export class SyncGate extends LitElement {
 
   private async start(): Promise<void> {
     try {
-      const login = await getLoginStatus();
-      if (login.status !== 'authenticated') {
+      const session = await getSession();
+      if (!session.activeUserId) {
         this.phase = 'unauthenticated';
         return;
       }
+      this.activeUserId = session.activeUserId;
       this.phase = 'syncing';
       await startSync();
       this.poll();
@@ -64,15 +69,23 @@ export class SyncGate extends LitElement {
   private poll(): void {
     if (this.#disconnected) return;
     getSyncStatus()
-      .then((status) => {
+      .then((statusByUser) => {
         if (this.#disconnected) return;
+        // This gate only loads the ACTIVE member's library, so its progress —
+        // and the decision to reveal or error — tracks that member alone. A
+        // non-active member's failure (or success) must not mask the active
+        // member's actual state.
+        const status = this.activeUserId
+          ? (statusByUser[this.activeUserId] ?? null)
+          : null;
         this.status = status;
-        if (status.state === 'ready') {
-          this.finish();
-        } else if (status.state === 'error') {
-          this.phase = 'error';
-        } else {
+
+        if (!status || status.state === 'pending') {
           this.#pollTimer = setTimeout(() => this.poll(), POLL_INTERVAL_MS);
+        } else if (status.state === 'ready') {
+          this.finish();
+        } else {
+          this.phase = 'error'; // the active member's sync failed
         }
       })
       .catch(() => {
@@ -80,11 +93,16 @@ export class SyncGate extends LitElement {
       });
   }
 
-  /** Load the cached library into the store and reveal the slotted content. */
+  /** Load the active member's cached library into the store and reveal content. */
   private async finish(): Promise<void> {
     try {
-      const library = await getLibrary();
-      dispatch({ type: 'setLibrary', payload: library });
+      const libraryByUser = await getLibrary();
+      const library = this.activeUserId
+        ? libraryByUser[this.activeUserId]
+        : undefined;
+      if (library) {
+        dispatch({ type: 'setLibrary', payload: library });
+      }
     } catch {
       // Even if the library read fails, reveal content — the existing tabs can
       // still fetch live.
@@ -112,11 +130,7 @@ export class SyncGate extends LitElement {
           label=${this.progressLabel()}
         ></loading-spinner>`;
       case 'error':
-        return html`
-          <div class="msg">
-            Couldn't load your library. <slot></slot>
-          </div>
-        `;
+        return nothing;
       case 'ready':
         return html`<slot></slot>`;
     }

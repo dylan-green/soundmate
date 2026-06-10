@@ -17,7 +17,8 @@ const spotifyApi = createSpotifyApiService();
 const LIMIT = 50;
 const TIME_RANGE = 'long_term' as const;
 
-function pendingStatus(): SyncStatus {
+/** A fresh `pending` status with every category marked pending. */
+export function pendingStatus(): SyncStatus {
   const categories = Object.fromEntries(
     LIBRARY_CATEGORIES.map((c) => [c, 'pending'] as const),
   ) as SyncStatus['categories'];

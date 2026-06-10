@@ -59,13 +59,13 @@ export async function exchangeCodeForTokens(code: string): Promise<StoredTokens>
  * transparently (and writing the refreshed tokens back) if needed.
  */
 export async function getValidAccessToken(store: TokenStore): Promise<string> {
-  const current = store.get();
+  const current = await store.get();
   if (!current) {
     throw new AppError('Not authenticated', 401);
   }
   if (Date.now() >= current.expiresAt - EXPIRY_SKEW_MS) {
     const refreshed = await refreshTokens(current);
-    store.set(refreshed);
+    await store.set(refreshed);
     return refreshed.accessToken;
   }
   return current.accessToken;

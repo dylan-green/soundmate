@@ -1,4 +1,4 @@
-import type { Library, SyncStatus } from '@soundmate/common/library';
+import type { LibraryByUser, SyncStatusByUser } from '@soundmate/common/library';
 import { apiFetch } from './api';
 
 /**
@@ -14,20 +14,26 @@ export async function startSync(): Promise<void> {
   }
 }
 
-/** Poll the current sync progress. */
-export async function getSyncStatus(): Promise<SyncStatus> {
+/**
+ * Poll sync progress for every connected member, keyed by Spotify user id.
+ * (The session is multi-user, so this is a map — pick the member you care about.)
+ */
+export async function getSyncStatus(): Promise<SyncStatusByUser> {
   const response = await apiFetch('/me/sync/status');
   if (!response.ok) {
     throw new Error(`Failed to fetch sync status (HTTP ${response.status})`);
   }
-  return (await response.json()) as SyncStatus;
+  return (await response.json()) as SyncStatusByUser;
 }
 
-/** Fetch the cached library (only meaningful once the sync is ready). */
-export async function getLibrary(): Promise<Library> {
+/**
+ * Fetch the cached library for every connected member, keyed by user id (only
+ * meaningful once that member's sync is ready).
+ */
+export async function getLibrary(): Promise<LibraryByUser> {
   const response = await apiFetch('/me/library');
   if (!response.ok) {
     throw new Error(`Failed to fetch library (HTTP ${response.status})`);
   }
-  return (await response.json()) as Library;
+  return (await response.json()) as LibraryByUser;
 }
