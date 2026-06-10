@@ -2,7 +2,7 @@
 // live server-side (per session); these interfaces are the abstraction services
 // depend on, plus the non-sensitive JSON shapes the API exposes to the browser.
 
-/** Spotify tokens stored per user session, server-side. */
+/** Spotify tokens stored per user, server-side (keyed by Spotify user id). */
 export interface StoredTokens {
   accessToken: string;
   refreshToken: string;
@@ -12,14 +12,26 @@ export interface StoredTokens {
 }
 
 /**
- * Abstraction over where a user's tokens live. At runtime this is backed by the
- * Express session (see app/lib/session-token-storage.ts), but services depend
- * only on this interface — they never import Express.
+ * Abstraction over where a user's tokens live. At runtime this is backed by
+ * Redis, keyed by Spotify user id (see app/lib/user-token-store.ts), so one
+ * session can hold many members and each member holds owns their own token.
  */
 export interface TokenStore {
-  get(): StoredTokens | null;
-  set(tokens: StoredTokens): void;
-  clear(): void;
+  get(): Promise<StoredTokens | null>;
+  set(tokens: StoredTokens): Promise<void>;
+  clear(): Promise<void>;
+}
+
+/**
+ * Non-sensitive view of a session's membership (GET /session). Lists the
+ * connected member ids and which one playback/token endpoints act as. Never
+ * includes tokens.
+ */
+export interface SessionView {
+  /** Spotify ids of all members connected to this session. */
+  users: string[];
+  /** The member playback / token endpoints act as, or null if none. */
+  activeUserId: string | null;
 }
 
 /** Shape of the JSON returned by the server's GET /login/status endpoint. */

@@ -40,6 +40,12 @@ export interface Library {
   savedTracks: TopTrack[] | null;
 }
 
+/**
+ * GET /me/library returns every connected member's library, keyed by Spotify
+ * user id (the session is multi-user — see SessionView).
+ */
+export type LibraryByUser = Record<string, Library>;
+
 /** Per-category sync progress. */
 export type CategoryStatus = 'pending' | 'ok' | 'error';
 
@@ -55,3 +61,9 @@ export interface SyncStatus {
   /** Set when the whole sync failed. */
   error?: string;
 }
+
+/**
+ * GET /me/sync/status returns the sync progress for every connected member,
+ * keyed by Spotify user id.
+ */
+export type SyncStatusByUser = Record<string, SyncStatus>;
