@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { BadRequestError } from '../errors/app-error.js';
-import { sessionTokenStore } from '../lib/session-token-storage.js';
+import { activeUserStore } from '../lib/session-users.js';
 import * as playbackService from '../services/playback-service.js';
 
 const bodySchema = z.object({
@@ -20,6 +20,6 @@ export async function startPlayback(req: Request, res: Response): Promise<void> 
     throw new BadRequestError('Invalid playback request', details);
   }
 
-  await playbackService.startPlayback(sessionTokenStore(req), parsed.data);
+  await playbackService.startPlayback(activeUserStore(req), parsed.data);
   res.status(204).end();
 }

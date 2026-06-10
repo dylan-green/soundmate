@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { BadRequestError } from '../errors/app-error.js';
-import { sessionTokenStore } from '../lib/session-token-storage.js';
+import { activeUserStore } from '../lib/session-users.js';
 import { createSpotifyApiService } from '../services/spotify-api-service.js'
 
 const spotifyApi = createSpotifyApiService();
@@ -30,7 +30,7 @@ function parseTopItemsArgs(req: Request) {
       timeRange: query.data.time_range,
       limit: query.data.limit,
     },
-    store: sessionTokenStore(req),
+    store: activeUserStore(req),
   };
 }
 
@@ -79,7 +79,7 @@ export async function getPlaylistTracks(req: Request, res: Response): Promise<vo
   const result = await spotifyApi.getPlaylistTracks({
     playlistId: params.data.id,
     limit: query.data.limit,
-    store: sessionTokenStore(req),
+    store: activeUserStore(req),
   });
   res.json(result);
 }
