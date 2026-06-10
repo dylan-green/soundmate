@@ -26,6 +26,15 @@ declare module 'express-session' {
      * bearer token. Cleared if that member is removed from the roster.
      */
     ownerUserId?: string;
+    /**
+     * The soundmate GROUP this session belongs to
+     */
+    groupId?: string;
+    /**
+     * An invite token captured on /login?invite=<token> and consumed on
+     * /login/callback to add the newly-authenticated user to the group
+     */
+    pendingInvite?: string;
     /** Pending OAuth CSRF state, set on /login and verified on /login/callback. */
     oauthState?: string;
   }

@@ -1,7 +1,10 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
+import type { TokenStore } from '@soundmate/common/auth';
 import { BadRequestError } from '../errors/app-error.js';
+import { requireGroupMember } from '../lib/session-group.js';
 import { activeUserStore } from '../lib/session-users.js';
+import { userTokenStore } from '../lib/user-token-store.js';
 import { createSpotifyApiService } from '../services/spotify-api-service.js'
 
 const spotifyApi = createSpotifyApiService();
@@ -14,8 +17,24 @@ const querySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(50),
 });
 
-/** Parse + validate the shared `time_range`/`limit` query and build service args. */
-function parseTopItemsArgs(req: Request) {
+const userIdSchema = z.object({ userId: z.string().min(1).optional() });
+
+/**
+ * Resolve the TokenStore for a data read. Defaults to the active member; with a
+ * valid `?userId=` that names a group peer, uses that peer's store instead.
+ */
+async function resolveStore(req: Request): Promise<TokenStore> {
+  const parsed = userIdSchema.safeParse(req.query);
+  const userId = parsed.success ? parsed.data.userId : undefined;
+  if (userId) {
+    await requireGroupMember(req, userId);
+    return userTokenStore(userId);
+  }
+  return activeUserStore(req);
+}
+
+/** Parse + validate the shared `time_range`/`limit` query. */
+function parseTopItemsOptions(req: Request) {
   const query = querySchema.safeParse(req.query);
   if (!query.success) {
     const details = query.error.issues.map((issue) => ({
@@ -26,29 +45,35 @@ function parseTopItemsArgs(req: Request) {
   }
 
   return {
-    options: {
-      timeRange: query.data.time_range,
-      limit: query.data.limit,
-    },
-    store: activeUserStore(req),
+    timeRange: query.data.time_range,
+    limit: query.data.limit,
   };
 }
 
-/** GET /me/top/tracks?time_range=&limit= — the user's top tracks. */
+/** GET /me/top/tracks?time_range=&limit=&userId= — top tracks (self or a peer). */
 export async function getTopTracks(req: Request, res: Response): Promise<void> {
-  const result = await spotifyApi.getTopTracks(parseTopItemsArgs(req));
+  const result = await spotifyApi.getTopTracks({
+    options: parseTopItemsOptions(req),
+    store: await resolveStore(req),
+  });
   res.json(result);
 }
 
-/** GET /me/top/artists?time_range=&limit= — the user's top artists. */
+/** GET /me/top/artists?time_range=&limit=&userId= — top artists (self or a peer). */
 export async function getTopArtists(req: Request, res: Response): Promise<void> {
-  const result = await spotifyApi.getTopArtists(parseTopItemsArgs(req));
+  const result = await spotifyApi.getTopArtists({
+    options: parseTopItemsOptions(req),
+    store: await resolveStore(req),
+  });
   res.json(result);
 }
 
-/** GET /me/top/playlists?limit= — the user's playlists (time_range is ignored). */
+/** GET /me/top/playlists?limit=&userId= — playlists (self or a peer; no time_range). */
 export async function getTopPlaylists(req: Request, res: Response): Promise<void> {
-  const result = await spotifyApi.getTopPlaylists(parseTopItemsArgs(req));
+  const result = await spotifyApi.getTopPlaylists({
+    options: parseTopItemsOptions(req),
+    store: await resolveStore(req),
+  });
   res.json(result);
 }
 
@@ -79,7 +104,7 @@ export async function getPlaylistTracks(req: Request, res: Response): Promise<vo
   const result = await spotifyApi.getPlaylistTracks({
     playlistId: params.data.id,
     limit: query.data.limit,
-    store: activeUserStore(req),
+    store: await resolveStore(req),
   });
   res.json(result);
 }

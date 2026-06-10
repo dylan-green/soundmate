@@ -32,6 +32,15 @@ export interface SessionView {
   users: string[];
   /** The member playback / token endpoints act as, or null if none. */
   activeUserId: string | null;
+  /** Spotify ids of every member in this session's cross-device GROUP */
+  groupMembers: string[];
+}
+
+export interface InviteResponse {
+  /** Full URL to send to the invitee (client origin + ?invite=<token>). */
+  url: string;
+  /** Absolute expiry of the invite as epoch milliseconds. */
+  expiresAt: number;
 }
 
 /** Shape of the JSON returned by the server's GET /login/status endpoint. */

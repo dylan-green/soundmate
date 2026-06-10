@@ -7,3 +7,8 @@
  * login), never one supplied by the client (row-level security).
  */
 export const userNamespace = (userId: string): string => `users:${userId}`;
+
+/**
+ * Namespace for a cross-device soundmate GROUP (a shared member roster).
+ */
+export const groupNamespace = (groupId: string): string => `groups:${groupId}`;

@@ -20,7 +20,9 @@ const EXPIRY_SKEW_MS = 60_000;
  * Build the Spotify consent URL and return the CSRF `state` for the caller to
  * persist in the user's session (verified on the callback).
  */
-export function buildAuthorizeUrl(): { url: string; state: string } {
+export function buildAuthorizeUrl(
+  options: { showDialog?: boolean } = {},
+): { url: string; state: string } {
   const state = randomUUID();
 
   const params = new URLSearchParams({
@@ -31,6 +33,11 @@ export function buildAuthorizeUrl(): { url: string; state: string } {
   });
   if (spotifyConfig.scopes.length > 0) {
     params.set('scope', spotifyConfig.scopes.join(' '));
+  }
+  // When joining via an invite, force the recipient to authenticate with spotify
+  // rather than showing the invitee's pre-cached data
+  if (options.showDialog) {
+    params.set('show_dialog', 'true');
   }
 
   return { url: `${spotifyConfig.accountsBaseUrl}/authorize?${params.toString()}`, state };

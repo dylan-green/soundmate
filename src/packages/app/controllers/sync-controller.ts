@@ -4,6 +4,7 @@ import type {
   SyncStatus,
   SyncStatusByUser,
 } from '@soundmate/common/library';
+import { groupMemberIds } from '../lib/session-group.js';
 import { requireSessionUsers } from '../lib/session-users.js';
 import { userTokenStore } from '../lib/user-token-store.js';
 import { getLibrary, getStatus } from '../redis/user-data-repository.js';
@@ -37,9 +38,13 @@ export async function startSync(req: Request, res: Response): Promise<void> {
   res.status(202).json({ state: 'pending' } satisfies Pick<SyncStatus, 'state'>);
 }
 
-/** GET /me/sync/status — sync progress for every member, keyed by user id. */
+/**
+ * GET /me/sync/status — sync progress for every member of the GROUP, keyed by
+ * user id.
+ */
 export async function getSyncStatus(req: Request, res: Response): Promise<void> {
-  const users = requireSessionUsers(req);
+  requireSessionUsers(req); // 401 if this browser isn't authenticated
+  const users = await groupMemberIds(req);
   res.set('Cache-Control', 'no-store');
 
   const entries = await Promise.all(
@@ -53,9 +58,13 @@ export async function getSyncStatus(req: Request, res: Response): Promise<void> 
   res.json(Object.fromEntries(entries) satisfies SyncStatusByUser);
 }
 
-/** GET /me/library — the cached library for every member, keyed by user id. */
+/**
+ * GET /me/library — the cached library for every member of the GROUP, keyed by
+ * user id.
+ */
 export async function getUserLibrary(req: Request, res: Response): Promise<void> {
-  const users = requireSessionUsers(req);
+  requireSessionUsers(req); // 401 if this browser isn't authenticated
+  const users = await groupMemberIds(req);
 
   const entries = await Promise.all(
     users.map(async (userId) => [userId, await getLibrary(userId)] as const),
