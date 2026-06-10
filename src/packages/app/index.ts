@@ -8,6 +8,7 @@ import { getRedis } from './redis/redis-client.js';
 import authRouter from './routes/auth-routes.js';
 import loginRouter from './routes/login-routes.js';
 import router from './routes/routes.js';
+import sessionRouter from './routes/session-routes.js';
 
 const port = Number(process.env.PORT) || 8080;
 
@@ -42,6 +43,7 @@ async function main(): Promise<void> {
   app.use('/login', loginRouter);
   app.use('/me', router);
   app.use('/auth', authRouter);
+  app.use('/session', sessionRouter);
 
   // Health check
   app.get('/health', healthCheck);
